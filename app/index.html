@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Raspberry Pi DEV Environment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: {{BACKGROUND_COLOR}};
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .tag {
+            background: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚀 Raspberry Pi Zero W DEV Environment</h1>
+        <p>Sikeres Ansible + Jenkins Deploy!</p>
+        <p>Verzió Tag: <span class="tag">{{IMAGE_TAG}}</span></p>
+    </div>
+</body>
+</html>

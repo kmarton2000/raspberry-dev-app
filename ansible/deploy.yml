@@ -1,0 +1,27 @@
+- name: Deploy DEV App to Raspberry Pi Zero W
+  hosts: raspberry
+  gather_facts: no
+  vars:
+    docker_user: "{{ lookup('env', 'DOCKER_USER') }}"
+    image_tag: "{{ lookup('env', 'IMAGE_TAG') }}"
+
+  tasks:
+    - name: Docker login a Raspberry-n
+      command: >
+        docker login -u {{ docker_user }} -p {{ lookup('env', 'DOCKER_PASS') }}
+
+    - name: Régi konténer leállítása és törlése (ha létezik)
+      shell: |
+        docker stop raspberry-dev-app || true
+        docker rm raspberry-dev-app || true
+
+    - name: Új ARMv6 Docker kép letöltése
+      command: docker pull {{ docker_user }}/raspberry-dev-app:{{ image_tag }}
+
+    - name: Új konténer indítása
+      command: >
+        docker run -d 
+        --name raspberry-dev-app 
+        --restart always 
+        -p 80:80 
+        {{ docker_user }}/raspberry-dev-app:{{ image_tag }}
