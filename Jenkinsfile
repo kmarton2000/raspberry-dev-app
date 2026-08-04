@@ -21,12 +21,14 @@ node('custom-node-builder') {
                 sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
                 sh '''
-                    # 1. QEMU emulátor regisztrálása cross-architecture builthez
+                    # 1. QEMU regisztráció (már megtörtént, de bent tartható)
                     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
                     
                     cd app
                     
-                    # 2. Build cache nélkül a tiszta ARMv6 képre
+                    # 2. BuildKit kényszerítése és kép felépítése
+                    export DOCKER_BUILDKIT=1
+                    
                     docker build \
                       --no-cache \
                       --build-arg IMAGE_TAG=${IMAGE_TAG} \
