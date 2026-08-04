@@ -13,7 +13,6 @@ node('custom-node-builder') {
                 def gitCommit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                 env.IMAGE_TAG = "v${dateStr}-${gitCommit}"
                 
-                // Véletlenszerű HSL szín generálása a látványos változáshoz
                 def randomHue = new Random().nextInt(360)
                 env.BG_COLOR = "hsl(${randomHue}, 70%, 85%)"
 
@@ -21,15 +20,17 @@ node('custom-node-builder') {
 
                 sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
-                // Docker build kifejezetten az ARMv6 architektúrára az ARG-ok átadásával
+                // QEMU emuláció és Buildx builder beállítása a cross-platform builthez
                 sh '''
                     cd app
-                    docker build \
+                    
+                    # Célzott ARMv6 build és automatikus push a Docker Hub-ra
+                    docker buildx build \
+                      --platform linux/arm/v6 \
                       --build-arg IMAGE_TAG=${IMAGE_TAG} \
                       --build-arg BACKGROUND_COLOR="${BG_COLOR}" \
-                      -t $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG} .
-                    
-                    docker push $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG}
+                      -t $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG} \
+                      --push .
                 '''
             }
         }
