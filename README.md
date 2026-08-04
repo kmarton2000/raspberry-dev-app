@@ -25,3 +25,26 @@ raspberry-dev-app/
 │   └── deploy.yml
 ├── Dockerfile.ansible
 └── Jenkinsfile
+```
+
+## 3. Raspi user konfiguráció
+
+```
+# 1. 'deploy' user létrehozása és hozzáadása a docker csoporthoz
+sudo useradd -m -s /bin/bash deploy
+sudo usermod -aG docker deploy
+
+# 2. Váltás a deploy userre
+sudo su - deploy
+
+# 3. SSH kulcspár generálása
+ssh-keygen -t ed25519 -C "jenkins-deploy@raspberry" -N ""
+
+# 4. Authorized keys beállítása
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+# 5. Privát kulcs kiíratása (Jenkins Credentials-höz)
+cat ~/.ssh/id_ed25519
+```
