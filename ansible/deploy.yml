@@ -16,7 +16,7 @@
         docker rm raspberry-dev-app || true
 
     - name: Új ARMv6 Docker kép letöltése
-      command: docker pull --platform linux/arm/v6 {{ docker_user }}/raspberry-dev-app:{{ image_tag }}
+      command: docker pull {{ docker_user }}/raspberry-dev-app:{{ image_tag }}
 
     - name: Új konténer indítása
       command: >

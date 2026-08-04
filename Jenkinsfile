@@ -1,12 +1,12 @@
-node('custom-node-builder') {
+node('custom-buildx-agent') {
     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
         
         stage('1. Checkout Code') {
             checkout scm
         }
 
-        stage('2. Build & Push Image') {
-            container('node-builder') {
+        stage('2. Build & Push Native ARMv6 Image') {
+            container('buildx') {
                 sh 'git config --global --add safe.directory "*"'
 
                 def dateStr = sh(script: "date +%Y%m%d%H%M", returnStdout: true).trim()
@@ -18,17 +18,25 @@ node('custom-node-builder') {
 
                 echo "===> Generált Verzió: ${env.IMAGE_TAG}, Szín: ${env.BG_COLOR}"
 
-                sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-
                 sh '''
+                    # Kernel binfmt QEMU regisztráció cross-platform buildhez
+                    docker run --privileged --rm tonistiigi/binfmt --install all
+
+                    # Docker Hub autentikáció
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+                    # Buildx builder példány létrehozása és aktiválása
+                    docker buildx create --name armv6builder --driver docker-container --use || true
+                    docker buildx inspect --bootstrap
+
+                    # Tényleges ARMv6 build és push
                     cd app
-                    
-                    docker build \
+                    docker buildx build \
+                      --platform linux/arm/v6 \
                       --build-arg IMAGE_TAG=${IMAGE_TAG} \
                       --build-arg BACKGROUND_COLOR="${BG_COLOR}" \
-                      -t $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG} .
-                      
-                    docker push $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG}
+                      -t $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG} \
+                      --push .
                 '''
             }
         }
@@ -44,7 +52,6 @@ node('custom-ansible-agent') {
             container('ansible') {
                 checkout scm
 
-                // SSH szigorú host key ellenőrzés kikapcsolása a dinamikus csatlakozáshoz
                 sh '''
                     mkdir -p ~/.ssh
                     echo "Host *" > ~/.ssh/config
