@@ -20,17 +20,18 @@ node('custom-node-builder') {
 
                 sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
-                // QEMU emuláció és Buildx builder beállítása a cross-platform builthez
                 sh '''
                     cd app
                     
-                    # Célzott ARMv6 build és automatikus push a Docker Hub-ra
-                    docker buildx build \
-                      --platform linux/arm/v6 \
+                    # Környezeti változóval kényszerítjük az ARMv6 architektúrát
+                    export DOCKER_DEFAULT_PLATFORM=linux/arm/v6
+                    
+                    docker build \
                       --build-arg IMAGE_TAG=${IMAGE_TAG} \
                       --build-arg BACKGROUND_COLOR="${BG_COLOR}" \
-                      -t $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG} \
-                      --push .
+                      -t $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG} .
+                      
+                    docker push $DOCKER_USER/raspberry-dev-app:${IMAGE_TAG}
                 '''
             }
         }
