@@ -8,7 +8,6 @@ COPY index.html /usr/share/nginx/html/index.html
 
 # 3. Változók behelyettesítése és alapértelmezett Nginx gyökérkönyvtár beállítása
 RUN sed -i "s/{{IMAGE_TAG}}/${IMAGE_TAG}/g" /usr/share/nginx/html/index.html && \
-    sed -i "s/{{BACKGROUND_COLOR}}/${BACKGROUND_COLOR}/g" /usr/share/nginx/html/index.html && \
-    sed -i "s|root /var/www/localhost/htdocs;|root /usr/share/nginx/html;|g" /etc/nginx/http.d/default.conf
+    sed -i "s/{{BACKGROUND_COLOR}}/${BACKGROUND_COLOR}/g" /usr/share/nginx/html/index.html
 
 EXPOSE 80
