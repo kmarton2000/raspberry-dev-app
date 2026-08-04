@@ -23,9 +23,6 @@ node('custom-node-builder') {
                 sh '''
                     cd app
                     
-                    # Környezeti változóval kényszerítjük az ARMv6 architektúrát
-                    export DOCKER_DEFAULT_PLATFORM=linux/arm/v6
-                    
                     docker build \
                       --build-arg IMAGE_TAG=${IMAGE_TAG} \
                       --build-arg BACKGROUND_COLOR="${BG_COLOR}" \
